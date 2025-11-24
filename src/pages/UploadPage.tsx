@@ -1,22 +1,46 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, FileText, Image as ImageIcon, FileType, ArrowRight } from 'lucide-react';
+// 添加 Loader2 图标用于加载状态
+import { Upload, FileText, Image as ImageIcon, FileType, ArrowRight, Loader2 } from 'lucide-react';
+// 导入 API
+import { submitEssay } from '../api/analysis';
 
 const UploadPage: React.FC = () => {
     const navigate = useNavigate();
     const [text, setText] = useState('');
+    // 新增：存储实际的文件对象
+    const [file, setFile] = useState<File | null>(null);
     const [fileName, setFileName] = useState<string | null>(null);
+    // 新增：提交加载状态
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
+            setFile(e.target.files[0]); // 保存文件对象
             setFileName(e.target.files[0].name);
         }
     };
 
-    const handleSubmit = () => {
-        // 这里暂时不处理实际上传逻辑
-        // 直接跳转到报告页面演示流程
-        navigate('/report');
+    const handleSubmit = async () => {
+        if (!text && !file) {
+            alert("请输入文字或上传文件");
+            return;
+        }
+
+        try {
+            setIsSubmitting(true);
+            // 调用 API 提交数据
+            // 注意：这里假设 submitEssay 返回成功即可跳转，具体数据传递方式取决于你的架构
+            // (例如：后端返回 ID，跳转到 /report/:id，或者后端存储在 session 中)
+            await submitEssay(text, file || undefined);
+            
+            navigate('/report');
+        } catch (error) {
+            console.error("提交失败:", error);
+            alert("提交失败，请检查网络或稍后重试");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -93,10 +117,24 @@ const UploadPage: React.FC = () => {
                     {/* Submit Button */}
                     <button
                         onClick={handleSubmit}
-                        className="w-full bg-stone-900 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-stone-800 hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 group"
+                        disabled={isSubmitting}
+                        className={`w-full bg-stone-900 text-white py-4 rounded-xl font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2 group ${
+                            isSubmitting 
+                                ? 'opacity-80 cursor-not-allowed' 
+                                : 'hover:bg-stone-800 hover:shadow-xl transform hover:-translate-y-0.5'
+                        }`}
                     >
-                        <span>开始智能批改</span>
-                        <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 size={20} className="animate-spin" />
+                                <span>正在智能分析...</span>
+                            </>
+                        ) : (
+                            <>
+                                <span>开始智能批改</span>
+                                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                            </>
+                        )}
                     </button>
                 </div>
             </div>

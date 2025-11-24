@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // 导入 hook 用于返回
 
-// 调整导入路径，指向上一级目录
 import { MOCK_DATA } from '../constants';
 import { EssayData } from '../types';
 import { getEssayAnalysis } from '../api/analysis';
