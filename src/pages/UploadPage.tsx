@@ -45,7 +45,8 @@ const UploadPage: React.FC = () => {
             <Header showBack={true} title="提交作文" />
 
             {/* 3. 主要内容区域 */}
-            <main className="flex-1 p-4 space-y-6">
+            {/* 修改：增加 pb-28 (padding-bottom) 为底部固定按钮留出空间，防止内容被遮挡 */}
+            <main className="flex-1 p-4 pb-28 space-y-6">
                 
                 {/* 引导文案 (替代原来的黑色 Header Banner) */}
                 <div className="px-1">
@@ -118,9 +119,11 @@ const UploadPage: React.FC = () => {
                         </div>
                     </div>
                 </div>
+            </main>
 
-                {/* 提交按钮 */}
-                {/* 放在底部或内容下方，使用蓝色主色调 */}
+            {/* 4. 底部固定操作栏 */}
+            {/* 使用 fixed 定位，并配合 max-w-md 限制宽度，使其在桌面端也能保持手机样式 */}
+            <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-100 p-4 z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                 <button
                     onClick={handleSubmit}
                     disabled={isSubmitting}
@@ -142,7 +145,7 @@ const UploadPage: React.FC = () => {
                         </>
                     )}
                 </button>
-            </main>
+            </div>
         </div>
     );
 };

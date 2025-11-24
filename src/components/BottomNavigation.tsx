@@ -20,7 +20,7 @@ const BottomNavigation: React.FC = () => {
     },
     {
       name: '我的',
-      path: '/profile', // 假设的路由
+      path: '/profile', 
       icon: User,
     },
   ];

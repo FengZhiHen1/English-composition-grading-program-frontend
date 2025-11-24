@@ -1,4 +1,13 @@
-import { EssayData } from './types';
+import { EssayData, User } from './types';
+
+export const USER: User = {
+  "uid": 1,
+  "username": "风之痕",
+  "avatar_url": "",
+  "telephone": "1234567890",
+  "wechat_id": "1111",
+  "points": 0
+}
 
 export const MOCK_DATA: EssayData = {
   "original_text": "We sat down next to each other, but David wouldn't look at me. I tried to talked to him nicely and patiently, \"Come on, David. Tell me what bothers you so much that you decided to quit. You practiced so hard for the run.\" David glimpsed at me and lowered his head, seeming anxious and frustrated. \"I'm just concerned that others will laugh at me because of the way I run.\" I understood David's worries and made efforst to light up his moud and encourage him to go back to the race. \"No one's going to laugh at you as long as you show your determination and faith. I'm sure the crowd will cheer for you.\" Having heard this, a flood of excitement and hope streamed in David's heart. He stood up as his eyes sharpened, \"I'm ready.\" \n\nI watched as David moved up to the starting line with the other runners. As the judge shot, all the runners dashed out like an arrow except David, managing to control his body well. David made his maximum efforts to",

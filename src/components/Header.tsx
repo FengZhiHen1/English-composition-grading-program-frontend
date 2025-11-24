@@ -31,7 +31,7 @@ const Header: React.FC<HeaderProps> = ({ title = "英语作文批改", showBack 
       </div>
 
       {/* 中间标题 */}
-      <h1 className="text-base font-semibold text-gray-800 tracking-wide truncate text-center flex-1">
+      <h1 className="text-lg font-semibold text-gray-800 tracking-wide truncate text-center flex-1">
         {title}
       </h1>
 
