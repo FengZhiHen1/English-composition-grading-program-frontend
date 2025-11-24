@@ -38,13 +38,34 @@ const ProfilePage: React.FC = () => {
   // --- 状态管理 ---
   const [showPicker, setShowPicker] = useState(false);
   
+  // 解析 USER.grade 获取初始值
+  const getInitialState = () => {
+    if (!USER.grade) return { level: EDUCATION_LEVELS[3], grade: 2 };
+    
+    const parts = USER.grade.split(' · ');
+    const levelName = parts[0];
+    const gradeStr = parts[1] || '';
+    
+    const level = EDUCATION_LEVELS.find(l => l.name === levelName) || EDUCATION_LEVELS[3];
+    
+    const chinese = ['一', '二', '三', '四', '五', '六'];
+    // 尝试从 "二年级" 中提取 "二" 并转换为数字
+    const gradeChar = gradeStr.charAt(0);
+    const gradeIndex = chinese.indexOf(gradeChar);
+    const grade = gradeIndex !== -1 ? gradeIndex + 1 : 1;
+    
+    return { level, grade };
+  };
+
+  const initialState = getInitialState();
+
   // 最终显示的选中值
-  const [confirmedLevel, setConfirmedLevel] = useState(EDUCATION_LEVELS[3]); // 默认大学
-  const [confirmedGrade, setConfirmedGrade] = useState(2); // 默认二年级
+  const [confirmedLevel, setConfirmedLevel] = useState(initialState.level); 
+  const [confirmedGrade, setConfirmedGrade] = useState(initialState.grade);
 
   // 弹窗中临时的选中值
-  const [tempLevel, setTempLevel] = useState(EDUCATION_LEVELS[3]);
-  const [tempGrade, setTempGrade] = useState(2);
+  const [tempLevel, setTempLevel] = useState(initialState.level);
+  const [tempGrade, setTempGrade] = useState(initialState.grade);
 
   // --- 新增：锁定背景滚动 ---
   // 当弹窗打开时，禁止页面主体滚动，防止滚动穿透
@@ -120,9 +141,9 @@ const ProfilePage: React.FC = () => {
                             </button>
                         </div>
                     </div>
-                    <div className="inline-flex items-center px-2 py-0.5 bg-gray-100 rounded-md mt-1">
-                        <div className="w-3 h-3 bg-gray-400 rounded-full mr-1.5 border-2 border-white"></div>
-                        <span className="text-xs text-gray-500">会员未开通</span>
+                    <div className={`inline-flex items-center px-2 py-0.5 rounded-md mt-1 ${USER.points > 0 ? 'bg-amber-100' : 'bg-gray-100'}`}>
+                        <div className={`w-3 h-3 rounded-full mr-1.5 border-2 border-white ${USER.points > 0 ? 'bg-amber-500' : 'bg-gray-400'}`}></div>
+                        <span className={`text-xs ${USER.points > 0 ? 'text-amber-800' : 'text-gray-500'}`}>积分数：{USER.points}</span>
                     </div>
                 </div>
             </div>

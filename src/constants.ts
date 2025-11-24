@@ -6,7 +6,8 @@ export const USER: User = {
   "avatar_url": "",
   "telephone": "1234567890",
   "wechat_id": "1111",
-  "points": 0
+  "points": 10,
+  "grade": "大学 · 二年级"
 }
 
 export const MOCK_DATA: EssayData = {
