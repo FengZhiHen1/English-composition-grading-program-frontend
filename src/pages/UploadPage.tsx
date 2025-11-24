@@ -21,7 +21,7 @@ const UploadPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-stone-100 flex items-center justify-center p-4 font-sans">
-            <div className="w-full max-w-2xl bg-white rounded-[2rem] shadow-xl overflow-hidden border border-stone-200">
+            <div className="w-full max-w-xl bg-white rounded-[2rem] shadow-xl overflow-hidden border border-stone-200">
                 
                 {/* Header */}
                 <div className="bg-stone-900 p-8 text-white relative overflow-hidden">
