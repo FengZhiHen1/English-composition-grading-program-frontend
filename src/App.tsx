@@ -12,10 +12,12 @@
  */
 
 // 导入 React 核心库
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-// 导入模拟数据，从 constants 文件获取
+// 导入模拟数据（可作为加载失败的兜底或开发时的占位）
 import { MOCK_DATA } from './constants';
+import { EssayData } from './types';
+import { getEssayAnalysis } from './api/analysis';
 
 // 导入子组件
 import ScoreOverview from './components/ScoreOverview';
@@ -27,10 +29,58 @@ import RevisedComparison from './components/RevisedComparison';
 import { GraduationCap, Printer, Share2 } from 'lucide-react';
 
 const App: React.FC = () => {
+    // 定义状态来存储数据、加载状态和错误信息
+    const [data, setData] = useState<EssayData | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+
+    // 组件挂载时获取数据
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                // 发送请求获取数据
+                const result = await getEssayAnalysis();
+                setData(result);
+            } catch (err) {
+                // console.error("Failed to fetch essay data:", err);
+                // setError("无法加载报告数据，请检查网络连接。");
+                
+                // 【可选】如果后端未就绪，可以在这里使用 Mock 数据兜底，方便调试 UI
+                setData(MOCK_DATA); 
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
     // 调用浏览器原生的window.print()方法，实现打印 / 导出 PDF 功能。
     const handlePrint = () => {
         window.print();
     };
+
+    // 加载中状态渲染
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-stone-100 text-stone-500">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p>正在生成评估报告...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // 错误状态渲染
+    if (error || !data) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-stone-100 text-red-500">
+                <p>{error || "未找到数据"}</p>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-stone-100 py-0 md:py-8 flex justify-center font-sans text-gray-900">
@@ -83,7 +133,8 @@ const App: React.FC = () => {
                     
                     {/* 1. Score Overview */}
                     <section>
-                        <ScoreOverview evaluation={MOCK_DATA.overall_evaluation} />
+                        {/* 使用 state 中的 data 替换 MOCK_DATA */}
+                        <ScoreOverview evaluation={data.overall_evaluation} />
                     </section>
 
                     {/* Divider */}
@@ -99,7 +150,8 @@ const App: React.FC = () => {
                             <h2 className="text-xl font-bold text-gray-900 mb-1">逐句精批与原文</h2>
                             <p className="text-xs text-gray-400 uppercase tracking-widest">Detailed Annotations</p>
                         </div>
-                        <AnnotatedEssay data={MOCK_DATA} />
+                        {/* 使用 state 中的 data */}
+                        <AnnotatedEssay data={data} />
                     </section>
 
                     {/* Divider */}
@@ -115,7 +167,8 @@ const App: React.FC = () => {
                             <h2 className="text-xl font-bold text-gray-900 mb-1">深度点评与拓展</h2>
                             <p className="text-xs text-gray-400 uppercase tracking-widest">Deep Analysis</p>
                         </div>
-                        <AnalysisSection data={MOCK_DATA} />
+                        {/* 使用 state 中的 data */}
+                        <AnalysisSection data={data} />
                     </section>
 
                     {/* Divider */}
@@ -131,7 +184,8 @@ const App: React.FC = () => {
                             <h2 className="text-xl font-bold text-gray-900 mb-1">高分范文润色</h2>
                             <p className="text-xs text-gray-400 uppercase tracking-widest">Polished Revision</p>
                         </div>
-                        <RevisedComparison revisedText={MOCK_DATA.revised_text} />
+                        {/* 使用 state 中的 data */}
+                        <RevisedComparison revisedText={data.revised_text} />
                     </section>
                 </main>
 
