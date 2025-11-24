@@ -39,9 +39,6 @@ npm install
 ```properties
 # 后端 API 基础地址 (例如 Python/FastAPI 后端)
 VITE_API_BASE_URL=http://localhost:8000
-
-# Gemini API Key (如果前端直接调用或用于特定配置)
-GEMINI_API_KEY=your_api_key_here
 ```
 
 > **注意**: `vite.config.ts` 中已配置了代理，开发环境下 `/api` 开头的请求会自动转发到 `VITE_API_BASE_URL`。

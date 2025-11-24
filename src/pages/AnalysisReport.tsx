@@ -5,10 +5,10 @@ import { MOCK_DATA } from '../constants';
 import { EssayData } from '../types';
 import { getEssayAnalysis } from '../api/analysis';
 
-import ScoreOverview from '../components/ScoreOverview';
-import AnnotatedEssay from '../components/AnnotatedEssay';
-import AnalysisSection from '../components/AnalysisSection';
-import RevisedComparison from '../components/RevisedComparison';
+import ScoreOverview from '../components/AnalysisReport/ScoreOverview';
+import AnnotatedEssay from '../components/AnalysisReport/AnnotatedEssay';
+import AnalysisSection from '../components/AnalysisReport/AnalysisSection';
+import RevisedComparison from '../components/AnalysisReport/RevisedComparison';
 
 import { GraduationCap, Printer, ArrowLeft } from 'lucide-react';
 
