@@ -15,10 +15,12 @@ import {
   Check
 } from 'lucide-react';
 
+import { USER } from '../constants';
+
 import Header from '../components/Header';
 import BottomNavigation from '../components/BottomNavigation';
-import ProfileMenuItem from '../components/ProfileMenuItem';
-import { USER } from '../constants';
+import ProfileMenuItem from '../components/ProfilePage/ProfileMenuItem';
+import GradePicker from '../components/ProfilePage/GradePicker'; // 新增引入
 
 // 定义教育阶段数据
 const EDUCATION_LEVELS = [
@@ -49,7 +51,6 @@ const ProfilePage: React.FC = () => {
     const level = EDUCATION_LEVELS.find(l => l.name === levelName) || EDUCATION_LEVELS[3];
     
     const chinese = ['一', '二', '三', '四', '五', '六'];
-    // 尝试从 "二年级" 中提取 "二" 并转换为数字
     const gradeChar = gradeStr.charAt(0);
     const gradeIndex = chinese.indexOf(gradeChar);
     const grade = gradeIndex !== -1 ? gradeIndex + 1 : 1;
@@ -63,46 +64,27 @@ const ProfilePage: React.FC = () => {
   const [confirmedLevel, setConfirmedLevel] = useState(initialState.level); 
   const [confirmedGrade, setConfirmedGrade] = useState(initialState.grade);
 
-  // 弹窗中临时的选中值
-  const [tempLevel, setTempLevel] = useState(initialState.level);
-  const [tempGrade, setTempGrade] = useState(initialState.grade);
-
   // --- 新增：锁定背景滚动 ---
-  // 当弹窗打开时，禁止页面主体滚动，防止滚动穿透
   useEffect(() => {
     if (showPicker) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
-    // 组件卸载时恢复
     return () => {
       document.body.style.overflow = '';
     };
   }, [showPicker]);
 
-  // --- 事件处理 ---
-
   // 打开弹窗
   const handleOpenPicker = () => {
-    setTempLevel(confirmedLevel);
-    setTempGrade(confirmedGrade);
     setShowPicker(true);
   };
 
-  // 切换阶段时，重置年级或确保年级在范围内
-  const handleLevelChange = (level: typeof EDUCATION_LEVELS[0]) => {
-    setTempLevel(level);
-    // 如果切换后的阶段年级少于当前选中的年级，重置为1，否则保持
-    if (tempGrade > level.years) {
-      setTempGrade(1);
-    }
-  };
-
-  // 确认选择
-  const handleConfirm = () => {
-    setConfirmedLevel(tempLevel);
-    setConfirmedGrade(tempGrade);
+  // 确认回调
+  const handleConfirm = (level: typeof EDUCATION_LEVELS[0], grade: number) => {
+    setConfirmedLevel(level);
+    setConfirmedGrade(grade);
     setShowPicker(false);
   };
 
@@ -148,7 +130,7 @@ const ProfilePage: React.FC = () => {
                 </div>
             </div>
 
-            {/* 年级选择按钮 (修改了 onClick) */}
+            {/* 年级选择按钮 (使用独立组件) */}
             <button 
               onClick={handleOpenPicker}
               className="flex items-center gap-1 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-100 text-xs text-gray-600 font-medium active:bg-gray-100 transition-colors"
@@ -215,96 +197,15 @@ const ProfilePage: React.FC = () => {
         </div>
       </main>
 
-      {/* --- 悬浮客服按钮 --- */}
-      <button className="fixed bottom-24 right-4 flex flex-col items-center z-20 group">
-        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center shadow-lg border-2 border-white text-blue-600 mb-1 group-active:scale-95 transition-transform">
-          <Headphones size={24} fill="currentColor" className="text-blue-500" />
-        </div>
-        <span className="bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm">
-          联系客服
-        </span>
-      </button>
-
-      {/* --- 年级选择弹窗 (Bottom Sheet) --- */}
-      {showPicker && (
-        <>
-          {/* 遮罩层 - z-50 */}
-          <div 
-            className="fixed inset-0 bg-black/40 z-50 transition-opacity"
-            onClick={() => setShowPicker(false)}
-          />
-          
-          {/* 弹窗内容 - 提升到 z-[60] 确保在遮罩层之上，防止事件被拦截 */}
-          <div className="fixed bottom-0 left-0 right-0 bg-white z-[60] rounded-t-2xl shadow-2xl transform transition-transform duration-300 max-w-md mx-auto overscroll-contain">
-            {/* 弹窗头部 */}
-            <div className="flex justify-between items-center p-4 border-b border-gray-100">
-              <button 
-                onClick={() => setShowPicker(false)}
-                className="text-gray-500 text-sm px-2 py-1"
-              >
-                取消
-              </button>
-              <span className="font-bold text-gray-800">选择年级</span>
-              <button 
-                onClick={handleConfirm}
-                className="text-blue-600 font-bold text-sm px-2 py-1"
-              >
-                确定
-              </button>
-            </div>
-
-            {/* 选择区域 (两列滚动) */}
-            {/* 增加高度到 h-64 以便更容易触发滚动 */}
-            <div className="flex h-64">
-              {/* 左侧：阶段选择 */}
-              {/* 添加 touch-pan-y 明确允许垂直滚动 */}
-              <div className="flex-1 overflow-y-auto border-r border-gray-50 scrollbar-hide touch-pan-y">
-                <div className="py-2">
-                  {EDUCATION_LEVELS.map((level) => (
-                    <div
-                      key={level.name}
-                      onClick={() => handleLevelChange(level)}
-                      className={`py-3 text-center text-sm cursor-pointer transition-colors ${
-                        tempLevel.name === level.name 
-                          ? 'text-blue-600 font-bold bg-blue-50' 
-                          : 'text-gray-600 hover:bg-gray-50'
-                      }`}
-                    >
-                      {level.name}
-                    </div>
-                  ))}
-                  {/* 底部留白，优化滚动体验 */}
-                  <div className="h-8"></div>
-                </div>
-              </div>
-
-              {/* 右侧：年级选择 */}
-              <div className="flex-1 overflow-y-auto scrollbar-hide touch-pan-y">
-                <div className="py-2">
-                  {Array.from({ length: tempLevel.years }).map((_, index) => {
-                    const gradeNum = index + 1;
-                    return (
-                      <div
-                        key={gradeNum}
-                        onClick={() => setTempGrade(gradeNum)}
-                        className={`py-3 text-center text-sm cursor-pointer transition-colors ${
-                          tempGrade === gradeNum 
-                            ? 'text-blue-600 font-bold bg-blue-50' 
-                            : 'text-gray-600 hover:bg-gray-50'
-                        }`}
-                      >
-                        {toChineseNum(gradeNum)}年级
-                      </div>
-                    );
-                  })}
-                  {/* 底部留白 */}
-                  <div className="h-8"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+      {/* 使用独立的 GradePicker 组件 */}
+      <GradePicker
+        isOpen={showPicker}
+        initialLevel={confirmedLevel}
+        initialGrade={confirmedGrade}
+        levels={EDUCATION_LEVELS}
+        onClose={() => setShowPicker(false)}
+        onConfirm={handleConfirm}
+      />
 
       <BottomNavigation />
     </div>
