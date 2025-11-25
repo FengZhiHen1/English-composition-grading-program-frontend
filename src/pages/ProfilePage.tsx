@@ -16,7 +16,8 @@ import {
   Ticket,
 } from "lucide-react";
 
-import { USER } from "../constants";
+import LoginModal from "@/components/LoginModal";
+import { useAuth } from "@/context/AuthContext";
 
 import Header from "../components/Header";
 import BottomNavigation from "../components/BottomNavigation";
@@ -41,16 +42,19 @@ const ProfilePage: React.FC = () => {
   // --- 状态管理 ---
   const [showPicker, setShowPicker] = useState(false);
 
-  // 解析 USER.grade 获取初始值
-  const getInitialState = () => {
-    if (!USER.grade) return { level: EDUCATION_LEVELS[3], grade: 2 };
+  // 使用认证信息优先渲染，未登录时使用默认值
+  const { user, isAuthenticated } = useAuth();
 
-    const parts = USER.grade.split(" · ");
+  // 解析 grade 字符串 (示例: "高中 · 一年级") 获取初始选择
+  const parseGrade = (gradeStrRaw?: string) => {
+    const defaultVal = { level: EDUCATION_LEVELS[2], grade: 1 };
+    if (!gradeStrRaw) return defaultVal;
+    const parts = gradeStrRaw.split(" · ");
     const levelName = parts[0];
     const gradeStr = parts[1] || "";
 
     const level =
-      EDUCATION_LEVELS.find((l) => l.name === levelName) || EDUCATION_LEVELS[3];
+      EDUCATION_LEVELS.find((l) => l.name === levelName) || EDUCATION_LEVELS[2];
 
     const chinese = ["一", "二", "三", "四", "五", "六"];
     const gradeChar = gradeStr.charAt(0);
@@ -60,7 +64,21 @@ const ProfilePage: React.FC = () => {
     return { level, grade };
   };
 
-  const initialState = getInitialState();
+  // 根据是否登录，决定使用哪个用户数据来源
+  const displayUser =
+    isAuthenticated && user
+      ? user
+      : {
+          uid: 0,
+          username: "未登录",
+          avatar_url: "/icon_user.png",
+          telephone: "",
+          wechat_id: "",
+          points: 0,
+          grade: "高中 · 一年级",
+        };
+
+  const initialState = parseGrade(displayUser.grade);
 
   // 最终显示的选中值
   const [confirmedLevel, setConfirmedLevel] = useState(initialState.level);
@@ -77,6 +95,8 @@ const ProfilePage: React.FC = () => {
       document.body.style.overflow = "";
     };
   }, [showPicker]);
+
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // 打开弹窗
   const handleOpenPicker = () => {
@@ -103,16 +123,21 @@ const ProfilePage: React.FC = () => {
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
               {/* 头像 */}
-              <div className="w-16 h-16 rounded-full bg-gray-200 shadow-md border-2 border-white overflow-hidden flex-shrink-0">
-                {USER.avatar_url ? (
+              <div
+                onClick={() => {
+                  if (!isAuthenticated) setShowLoginModal(true);
+                }}
+                className={`w-16 h-16 rounded-full bg-gray-200 shadow-md border-2 border-white overflow-hidden flex-shrink-0 ${!isAuthenticated ? "cursor-pointer" : ""}`}
+              >
+                {displayUser.avatar_url ? (
                   <img
-                    src={USER.avatar_url}
+                    src={displayUser.avatar_url}
                     alt="用户头像"
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white font-bold text-xl">
-                    {USER.username.slice(0, 1)}
+                    {displayUser.username.slice(0, 1)}
                   </div>
                 )}
               </div>
@@ -120,26 +145,31 @@ const ProfilePage: React.FC = () => {
               {/* 用户名与状态 */}
               <div className="space-y-1">
                 <div className="flex flex-col">
-                  <span className="text-lg font-bold text-gray-800">
-                    {USER.username}
+                  <span
+                    onClick={() => {
+                      if (!isAuthenticated) setShowLoginModal(true);
+                    }}
+                    className={`text-lg font-bold text-gray-800 ${!isAuthenticated ? "cursor-pointer" : ""}`}
+                  >
+                    {displayUser.username}
                   </span>
                   <div className="flex items-center gap-1 text-xs text-gray-500">
-                    <span>UID: {USER.uid}</span>
+                    <span>UID: {displayUser.uid}</span>
                     <button className="text-blue-500 p-0.5 rounded hover:bg-blue-50">
                       <Copy size={12} />
                     </button>
                   </div>
                 </div>
                 <div
-                  className={`inline-flex items-center px-2 py-0.5 rounded-md mt-1 ${USER.points > 0 ? "bg-amber-100" : "bg-gray-100"}`}
+                  className={`inline-flex items-center px-2 py-0.5 rounded-md mt-1 ${displayUser.points > 0 ? "bg-amber-100" : "bg-gray-100"}`}
                 >
                   <div
-                    className={`w-3 h-3 rounded-full mr-1.5 border-2 border-white ${USER.points > 0 ? "bg-amber-500" : "bg-gray-400"}`}
+                    className={`w-3 h-3 rounded-full mr-1.5 border-2 border-white ${displayUser.points > 0 ? "bg-amber-500" : "bg-gray-400"}`}
                   ></div>
                   <span
-                    className={`text-xs ${USER.points > 0 ? "text-amber-800" : "text-gray-500"}`}
+                    className={`text-xs ${displayUser.points > 0 ? "text-amber-800" : "text-gray-500"}`}
                   >
-                    积分数：{USER.points}
+                    积分数：{displayUser.points}
                   </span>
                 </div>
               </div>
@@ -220,6 +250,12 @@ const ProfilePage: React.FC = () => {
         levels={EDUCATION_LEVELS}
         onClose={() => setShowPicker(false)}
         onConfirm={handleConfirm}
+      />
+
+      {/* 登录弹窗 */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
       />
 
       <BottomNavigation />

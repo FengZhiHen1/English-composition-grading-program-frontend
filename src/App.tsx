@@ -1,11 +1,12 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
+import ProtectedRoute from "@/components/ProtectedRoute";
+
 import Home from "./pages/Home";
 import UploadPage from "./pages/UploadPage";
 import AnalysisReport from "./pages/AnalysisReport";
 import ProfilePage from "./pages/ProfilePage";
-import ProtectedRoute from "@/components/ProtectedRoute";
 
 function App() {
   return (
