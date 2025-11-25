@@ -2,13 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
-
-import Home from "./pages/Home";
-import UploadPage from "./pages/UploadPage";
-import AnalysisReport from "./pages/AnalysisReport";
-import ProfilePage from "./pages/ProfilePage";
-import QueuePage from "./pages/QueuePage";
-import PreviewPage from "./pages/PreviewPage";
+import routes from "./routes";
 
 function App() {
   return (
@@ -20,17 +14,19 @@ function App() {
     <div className="max-w-md mx-auto min-h-screen shadow-2xl border-x border-gray-100 relative bg-gray-50">
       <Router>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/upload" element={<UploadPage />} />
-          <Route path="/queue" element={<QueuePage />} />
-          <Route path="/preview/:id" element={<PreviewPage />} />
-          {/* <Route path="/report" element={
-            <ProtectedRoute>
-              <AnalysisReport />
-            </ProtectedRoute>
-          } /> */}
-          <Route path="/report" element={<AnalysisReport />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          {routes.map((r) => (
+            <Route
+              key={r.path}
+              path={r.path}
+              element={
+                r.protected ? (
+                  <ProtectedRoute>{r.element}</ProtectedRoute>
+                ) : (
+                  r.element
+                )
+              }
+            />
+          ))}
         </Routes>
       </Router>
     </div>
