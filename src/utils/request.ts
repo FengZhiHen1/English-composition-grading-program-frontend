@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 
 // 创建 axios 实例
 const api = axios.create({
@@ -27,9 +27,32 @@ api.interceptors.request.use(
 
 // 响应拦截器：统一处理错误（如Token过期、业务错误）
 api.interceptors.response.use(
-  (response) => {
-    // 对响应数据做点什么
-    return response.data;
+  (response: AxiosResponse) => {
+    // 统一归一化后端 envelope，兼容多种返回格式
+    const body = response.data;
+
+    // 如果后端已使用 { success: boolean, data, message } 风格，映射为统一结构
+    if (body && typeof body === "object") {
+      const hasSuccess = Object.prototype.hasOwnProperty.call(body, "success");
+      if (hasSuccess) {
+        const normalized = {
+          code: typeof body.code !== "undefined" ? body.code : body.success ? 0 : 1,
+          msg: body.msg ?? body.message ?? (body.success ? "ok" : ""),
+          message: body.message ?? body.msg ?? (body.success ? "ok" : ""),
+          success: Boolean(body.success),
+          data: typeof body.data !== "undefined" ? body.data : null,
+        };
+        return normalized;
+      }
+
+      // 如果后端直接返回业务对象（没有包裹 data），则将其封装为 { code:0, data: body }
+      if (!Object.prototype.hasOwnProperty.call(body, "data")) {
+        return { code: 0, msg: "ok", data: body };
+      }
+    }
+
+    // 默认返回 response.data（已为 envelope 或其他结构）
+    return body;
   },
   (error) => {
     // 对响应错误做点什么

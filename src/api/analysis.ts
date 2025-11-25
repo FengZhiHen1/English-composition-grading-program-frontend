@@ -24,12 +24,18 @@ export const getEssayAnalysis = (id?: string) => {
  * @param files 可选的图片数组或 FileList（仅 image/*，单张 <= 10MB）
  * @returns 后端响应（通过项目 http 封装返回）
  */
-export const submitEssay = (text?: string, files?: File[] | FileList) => {
+export const submitEssay = (
+  text?: string,
+  files?: File[] | FileList,
+  onUploadProgress?: (ev: ProgressEvent) => void,
+) => {
+  // 支持同时上传文字与多张图片。files 可为 File[] 或 FileList。
   const fileCount = files
     ? Array.isArray(files)
       ? files.length
       : files.length
     : 0;
+
   if (!text && fileCount === 0) {
     return Promise.reject(new Error("必须提供文本或图片文件"));
   }
@@ -52,11 +58,15 @@ export const submitEssay = (text?: string, files?: File[] | FileList) => {
   if (fileCount > 0) {
     const fileArray: File[] = Array.isArray(files) ? files : Array.from(files);
     for (const file of fileArray) {
-      // 根据后端约定调整字段名（photo / photos / file 等）
-      formData.append("photo", file);
+      // 与后端约定使用字段名 'photo[]'（数组形式），后端应使用 request.files.getlist('photo[]') 或等效方法接收多文件
+      formData.append("photo[]", file);
     }
   }
 
-  // 使用项目的 http.post 封装（返回 Promise<CustomSuccessData<T>>）
-  return http.post<any>(api.upload, formData);
+  // 注意：不要手动设置 Content-Type，浏览器 / axios 会自动处理 multipart boundary。
+  // 将上传进度回调传给 axios（通过 http.post 的第三个参数 config）
+  const config = onUploadProgress ? { onUploadProgress } : undefined;
+
+  // 返回后端 envelope（前端在调用处根据 code/success 进行判断）
+  return http.post<any>(api.upload, formData, config as any);
 };
