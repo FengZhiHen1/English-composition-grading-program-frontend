@@ -12,7 +12,7 @@ interface ReviewTask {
   createdAt: string; // ISO 时间字符串
 }
 
-// 模拟数据：时间越早排在越上面（已按 createdAt 升序）
+// 模拟数据（无特定顺序）：组件渲染时会按时间排序，最新的任务排在上面（越早的任务排在下面）
 const MOCK_TASKS: ReviewTask[] = [
   {
     id: "t1",
@@ -53,10 +53,10 @@ const formatDate = (iso?: string) => {
 const QueuePage: React.FC = () => {
   const navigate = useNavigate();
 
-  // 保证按时间升序（越早的任务越排在上面）
+  // 保证按时间降序（最新的任务排在上面，越早的任务排在下面）
   const tasks = useMemo(() => {
     return [...MOCK_TASKS].sort((a, b) => {
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
   }, []);
 
@@ -68,7 +68,7 @@ const QueuePage: React.FC = () => {
         <div className="mb-4">
           <h2 className="text-lg font-bold text-gray-800">批改队列</h2>
           <p className="text-sm text-gray-500 mt-1">
-            下面是提交的批改任务列表。列表按任务生成时间排序，越早的任务排在越上面。点击任务可跳转至对应的预览页面（预览页面暂未实现）。
+            下面是提交的批改任务列表。列表按任务生成时间排序，最新的任务排在上面（越早的任务排在下面）。点击任务可跳转至对应的预览页面（预览页面暂未实现）。
           </p>
         </div>
 
