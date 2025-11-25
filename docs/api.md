@@ -21,6 +21,12 @@
     ```
   - 认证失败：通常为 HTTP 401 或 200 + `{ success:false, message:"未认证" }`。
 
+附加说明（Token 与用户信息获取）
+- `AuthContext` 已实现：在初始化时如果 localStorage 中存在 `auth_token`，会把 token 写入 axios header，并尝试从 token 的 payload 中解析常见字段（`uid` / `sub` / `id` / `user_id`）以作为用户 id 优先调用 `GET /api/user/get_userinfo/{id}`。如果解析失败则回退到不带 id 的 `GET /api/user/get_userinfo`。
+- 登录返回若包含 `data.token`，`AuthContext.login` 会保存 token，并优先尝试从登录响应的 `data` 中读取 `uid`（或 `data.user.uid`、`data.user_id` 等），再调用 `getUserInfoAPI(uid)` 获取用户信息，以减少额外的请求。
+
+安全提示：前端此处仅做 payload 解码以提取 id，用于优化请求流程。生产环境必须由后端签发并校验 JWT（签名、过期等），前端不可信任客户端 token 内容作为权限验证依据。
+
 **前端请求封装（说明）**
 - 使用 `http.get<T>(url, params)` / `http.post<T>(url, data)` / `http.setAuthToken(token)`（见 `src/utils/index.ts`）。
 - `src/utils/request.ts` 在响应拦截器中返回 `response.data`，因此 `http` 的调用会得到后端的 envelope（而非 axios 原始 response）。
@@ -53,7 +59,7 @@
 
 - 获取用户信息
   - 方法：`GET`
-  - 路径：`/api/user/get_userinfo`
+  - 路径：`/api/user/get_userinfo` 或 `GET /api/user/get_userinfo/{id}`（后端需支持通过路径参数查询指定用户）。
   - Headers: `Authorization: Bearer <token>`（如需）
   - 返回类型（参考 `src/types/user.ts`）:
     ```ts
@@ -157,6 +163,24 @@
   ```json
   { "code":0, "msg":"上传成功", "data":{ "analysis_id":"analysis_20251125_ab12", "status":"processing" } }
   ```
+
+**示例 Token（用于本地调试）**
+- 说明：下面的 token 为本地测试示例，未做签名校验，仅用于前端从 payload 中解析 `uid`。不要在生产环境使用该示例 token。
+
+示例 token（payload 包含 uid = "123"）：
+
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIxMjMifQ==.c2lnbmF0dXJl
+```
+
+使用方法：
+- 在浏览器控制台执行：
+  ```js
+  localStorage.setItem('auth_token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIxMjMifQ==.c2lnbmF0dXJl');
+  ```
+- 刷新页面后 `AuthContext` 会解析出 `uid: "123"` 并尝试调用 `GET /api/user/get_userinfo/123` 来刷新用户信息。
+
+安全提示：该示例 signature 不是后端签名，仅示范 payload 解码流程；生产环境必须使用后端签发并校验的 JWT。
 
 - 分析报告（部分示例）：
   ```json
