@@ -13,10 +13,9 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // 每次发送请求之前判断pinia中是否存在token，如果存在，则统一在http请求的header都加上token，这样后台根据token判断你的登录情况
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    // 注意：不要直接从 localStorage 读取 token，
+    // token 由 `setAuthToken()` 统一管理并写入 `api.defaults.headers.common`，
+    // 这样更可控，避免不同地方使用不同的 key 导致不一致。
 
     return config;
   },

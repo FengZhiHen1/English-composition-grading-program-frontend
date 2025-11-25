@@ -16,13 +16,13 @@ import {
   Ticket,
 } from "lucide-react";
 
-import LoginModal from "@/components/LoginModal";
 import { useAuth } from "@/context/AuthContext";
 
 import Header from "../components/Header";
 import BottomNavigation from "../components/BottomNavigation";
 import ProfileMenuItem from "../components/ProfilePage/ProfileMenuItem";
-import GradePicker from "../components/ProfilePage/GradePicker"; // 新增引入
+import GradePicker from "../components/ProfilePage/GradePicker";
+import LoginModal from "../components/ProfilePage/LoginModal";
 
 // 定义教育阶段数据
 const EDUCATION_LEVELS = [
@@ -43,7 +43,9 @@ const ProfilePage: React.FC = () => {
   const [showPicker, setShowPicker] = useState(false);
 
   // 使用认证信息优先渲染，未登录时使用默认值
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout, loading } = useAuth();
+
+  // 退出按钮始终显示（不再依赖登录状态判断）
 
   // 解析 grade 字符串 (示例: "高中 · 一年级") 获取初始选择
   const parseGrade = (gradeStrRaw?: string) => {
@@ -240,6 +242,25 @@ const ProfilePage: React.FC = () => {
             onClick={() => console.log("关于")}
           />
         </div>
+
+        {/* 退出登录按钮：仅在登录时显示，宽度为屏占比60%，居中显示 */}
+        {isAuthenticated && (
+          <div className="mt-4">
+            <div className="mx-auto w-[60%] max-w-full">
+              <button
+                onClick={() => {
+                  const ok = window.confirm("确定要退出登录吗？");
+                  if (ok) {
+                    logout();
+                  }
+                }}
+                className="w-full bg-red-500 text-white py-3 rounded-xl shadow-sm hover:bg-red-600 transition-colors"
+              >
+                退出登录
+              </button>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* 使用独立的 GradePicker 组件 */}

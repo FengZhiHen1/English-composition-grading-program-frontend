@@ -40,12 +40,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 类型守卫：判断是否为后端统一的 envelope
+  const isEnvelope = (v: any): v is { success: boolean; data?: any; message?: string } => {
+    return typeof v === "object" && v !== null && Object.prototype.hasOwnProperty.call(v, "success");
+  };
+
   const refreshUser = async () => {
     try {
       const res = await getUserInfoAPI();
-      const data =
-        res && "data" in (res as any) ? (res as any).data : (res as any);
-      setUser(data ?? null);
+      if (isEnvelope(res)) {
+        if (res.success) {
+          setUser(res.data ?? null);
+        } else {
+          // 未认证或其他后端返回的失败
+          setUser(null);
+          throw new Error(res.message || "未认证");
+        }
+      } else if (res && typeof res === "object") {
+        // 兼容旧格式，直接使用返回对象
+        setUser((res as any) ?? null);
+      } else {
+        setUser(null);
+      }
     } catch (err) {
       setUser(null);
       // token 可能无效，清理
@@ -56,16 +72,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const login = async (payload: loginData) => {
     const res = await postLoginAPI(payload);
-    const token =
-      res && "data" in (res as any) && (res as any).data?.token
-        ? (res as any).data.token
-        : (res as any)?.token;
-    if (token) {
-      localStorage.setItem(TOKEN_KEY, token);
-      setAuthToken(token);
-      await refreshUser();
-    } else {
+    // 期望后端返回统一 envelope: { success: boolean, data?: any, message?: string }
+    if (isEnvelope(res)) {
+      if (!res.success) {
+        // 将后端返回的 message 透传给调用者
+        throw new Error(res.message || "登录失败");
+      }
+
+      // 成功
+      const maybe = res.data;
+      // 如果返回 token
+      if (maybe && typeof maybe === "object" && (maybe as any).token) {
+        const token = (maybe as any).token;
+        try {
+          localStorage.setItem(TOKEN_KEY, token);
+        } catch {}
+        setAuthToken(token);
+        await refreshUser();
+        return;
+      }
+
+      // 成功但没有 token：可能为 session 登录（后端通过 Set-Cookie 写入 session）
+      if (res.success) {
+        await refreshUser();
+        return;
+      }
+
+      throw new Error("登录返回格式不正确");
+    } else if (res && typeof res === "object") {
+      // 兼容旧格式：尝试提取 token
+      const token = (res as any).token || (res as any).data?.token;
+      if (token) {
+        try {
+          localStorage.setItem(TOKEN_KEY, token);
+        } catch {}
+        setAuthToken(token);
+        await refreshUser();
+        return;
+      }
       throw new Error("登录未返回 token");
+    } else {
+      throw new Error("登录失败");
     }
   };
 

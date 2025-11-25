@@ -14,6 +14,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [error, setError] = useState<string | null>(null);
   const { login } = useAuth();
   const modalRef = useRef<HTMLDivElement | null>(null);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -31,6 +32,9 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
 
+  // NOTE: 不再通过 effect 在输入变化时清除错误（避免程序化清空密码时误清除错误）。
+  // 改为在用户实际输入时在 onChange 中清除错误（见下）。
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -43,7 +47,29 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose }) => {
       await login({ username, password });
       onClose();
     } catch (err: any) {
-      setError(err?.message || "登录失败");
+      // 在展示错误前先清空密码输入框，防止潜在泄露并提示用户重新输入
+      setPassword("");
+      // 将焦点聚焦到密码输入框，便于用户立即重新输入
+      setTimeout(() => {
+        passwordRef.current?.focus();
+      }, 0);
+      // 区分后端返回的业务错误与网络/未知错误
+      // axios 错误对象：err.response?.data => 后端返回的数据
+      const resp = err?.response?.data;
+      if (resp && typeof resp === "object") {
+        // 优先使用后端 message 字段
+        const msg = resp.message || resp.msg || JSON.stringify(resp);
+        setError(String(msg));
+      } else if (err?.message) {
+        // 常见网络错误或抛出的 Error
+        if (err.message.includes("Network Error")) {
+          setError("网络无法连接，请检查你的网络或后端服务。");
+        } else {
+          setError(err.message);
+        }
+      } else {
+        setError("登录失败，请稍后重试");
+      }
     } finally {
       setLoading(false);
     }
@@ -85,7 +111,11 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <label className="block text-sm mb-1 text-gray-600">用户名</label>
             <input
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                // 只有在用户输入时才清除之前的错误提示
+                if (error) setError(null);
+              }}
               className="w-full px-3 py-2 border rounded bg-gray-50"
               placeholder="请输入用户名"
             />
@@ -94,9 +124,13 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <div>
             <label className="block text-sm mb-1 text-gray-600">密码</label>
             <input
+              ref={passwordRef}
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (error) setError(null);
+              }}
               className="w-full px-3 py-2 border rounded bg-gray-50"
               placeholder="请输入密码"
             />
