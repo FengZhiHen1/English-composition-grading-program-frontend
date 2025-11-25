@@ -7,6 +7,8 @@ import Home from "./pages/Home";
 import UploadPage from "./pages/UploadPage";
 import AnalysisReport from "./pages/AnalysisReport";
 import ProfilePage from "./pages/ProfilePage";
+import QueuePage from "./pages/QueuePage";
+import PreviewPage from "./pages/PreviewPage";
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/upload" element={<UploadPage />} />
+          <Route path="/queue" element={<QueuePage />} />
+          <Route path="/preview/:id" element={<PreviewPage />} />
           {/* <Route path="/report" element={
             <ProtectedRoute>
               <AnalysisReport />
