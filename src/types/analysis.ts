@@ -1,3 +1,12 @@
+type TaskStatus = "done" | "processing";
+
+export interface ReviewTask {
+  id: string;
+  title: string;
+  status: TaskStatus;
+  createdAt: string; // ISO 时间字符串
+}
+
 /*
 以下数据用于生成分析报告
 */

@@ -1,16 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { CheckCircle, Loader2 } from "lucide-react";
 
-type TaskStatus = "done" | "processing";
-
-interface ReviewTask {
-  id: string;
-  title: string;
-  status: TaskStatus;
-  createdAt: string; // ISO 时间字符串
-}
+import { ReviewTask } from "@/types/analysis";
+import useReviewTasks from "@/hooks/useReviewTasks";
 
 // 模拟数据（无特定顺序）：组件渲染时会按时间排序，最新的任务排在上面（越早的任务排在下面）
 const MOCK_TASKS: ReviewTask[] = [
@@ -52,18 +46,12 @@ const formatDate = (iso?: string) => {
 
 const QueuePage: React.FC = () => {
   const navigate = useNavigate();
-
-  // 保证按时间降序（最新的任务排在上面，越早的任务排在下面）
-  const tasks = useMemo(() => {
-    return [...MOCK_TASKS].sort((a, b) => {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-  }, []);
+  // 使用共享 Hook 获取任务并显示 loading / error（失败时回退 MOCK_TASKS）
+  const { tasks, loading, error, refresh } = useReviewTasks(MOCK_TASKS);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header title="批改队列" showBack={true} />
-
       <main className="flex-1 p-4">
         <div className="mb-4">
           <h2 className="text-lg font-bold text-gray-800">批改队列</h2>
@@ -72,39 +60,51 @@ const QueuePage: React.FC = () => {
           </p>
         </div>
 
-        <div className="space-y-2">
-          {tasks.map((task) => (
-            <div
-              key={task.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => navigate(`/preview/${task.id}`)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") navigate(`/preview/${task.id}`);
-              }}
-              className="cursor-pointer bg-white p-4 rounded-lg border border-gray-100 flex items-center justify-between hover:shadow-sm"
-            >
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-gray-800 truncate">{task.title}</p>
-                <p className="text-[12px] text-gray-400 mt-1">生成时间：{formatDate(task.createdAt)}</p>
-              </div>
+        {loading ? (
+          <div className="flex items-center justify-center p-8">
+            <Loader2 className="animate-spin text-blue-600" size={28} />
+            <span className="ml-3 text-sm text-gray-500">正在加载任务...</span>
+          </div>
+        ) : error ? (
+          <div className="p-4 bg-red-50 text-red-600 rounded-lg flex items-center justify-between">
+            <div>加载任务失败：{error}</div>
+            <button onClick={() => refresh()} className="text-sm text-blue-600 underline">重试</button>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {tasks.map((task) => (
+              <div
+                key={task.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => navigate(`/preview/${task.id}`)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") navigate(`/preview/${task.id}`);
+                }}
+                className="cursor-pointer bg-white p-4 rounded-lg border border-gray-100 flex items-center justify-between hover:shadow-sm"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-gray-800 truncate">{task.title}</p>
+                  <p className="text-[12px] text-gray-400 mt-1">生成时间：{formatDate(task.createdAt)}</p>
+                </div>
 
-              <div className="flex items-center gap-3">
-                {task.status === "done" ? (
-                  <div className="flex items-center gap-2 text-green-600">
-                    <CheckCircle size={18} />
-                    <span className="text-sm">已完成</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-blue-600">
-                    <Loader2 size={18} className="animate-spin" />
-                    <span className="text-sm">正在批改</span>
-                  </div>
-                )}
+                <div className="flex items-center gap-3">
+                  {task.status === "done" ? (
+                    <div className="flex items-center gap-2 text-green-600">
+                      <CheckCircle size={18} />
+                      <span className="text-sm">已完成</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-blue-600">
+                      <Loader2 size={18} className="animate-spin" />
+                      <span className="text-sm">正在批改</span>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );

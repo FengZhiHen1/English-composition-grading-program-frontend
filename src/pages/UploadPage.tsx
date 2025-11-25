@@ -24,7 +24,7 @@ const UploadPage: React.FC = () => {
         text || undefined,
         files.length > 0 ? files : undefined,
       );
-      navigate("/report");
+      navigate("/queue");
     } catch (error) {
       console.error("提交失败:", error);
       alert("提交失败，请检查网络或稍后重试");

@@ -1,15 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle, Loader2, Server } from "lucide-react";
 
-type TaskStatus = "done" | "processing";
-
-interface ReviewTask {
-  id: string;
-  title: string;
-  status: TaskStatus;
-  createdAt: string; // ISO 时间字符串
-}
+import { ReviewTask } from "@/types/analysis";
+import useReviewTasks from "@/hooks/useReviewTasks";
+import { useAuth } from "@/context/AuthContext";
 
 const MOCK_TASKS: ReviewTask[] = [
   { id: "t1", title: "My School Life", status: "done", createdAt: "2025-11-01T08:30:00Z" },
@@ -43,9 +38,8 @@ const formatDate = (iso?: string) => {
 const QueueCard: React.FC = () => {
   const navigate = useNavigate();
 
-  const tasks = useMemo(() => {
-    return [...MOCK_TASKS].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, []);
+  // 使用共享 Hook 获取任务（内部会使用 useAuth 获取 user.uid）
+  const { tasks, loading, error } = useReviewTasks(MOCK_TASKS);
 
   // 每项近似高度（px），用于计算可见高度
   const ITEM_HEIGHT = 56;
@@ -73,32 +67,41 @@ const QueueCard: React.FC = () => {
 
         {/* 显示区域固定为 3 项高度，初始可见 3 项，通过滚动最多查看 5 项 */}
         <div className="flex-1 overflow-y-auto" style={{ height: 3 * ITEM_HEIGHT }}>
-          {visibleTasks.map((t, idx) => (
-            <div
-              key={t.id}
-              className={`flex items-center justify-between gap-3 py-3 ${idx < tasks.length - 1 ? "border-b" : ""} border-gray-200`}
-              onClick={() => navigate(`/preview/${t.id}`)}
-              role="button"
-            >
-              <div className="min-w-0">
-                <div className="text-sm text-gray-800 truncate">{t.title}</div>
-                <div className="text-[11px] text-gray-500">{formatDate(t.createdAt)}</div>
-              </div>
-              <div className="flex items-center gap-2">
-                {t.status === "done" ? (
-                  <div className="flex items-center text-green-600 gap-1">
-                    <CheckCircle size={16} />
-                    <span className="text-xs">已完成</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center text-blue-600 gap-1">
-                    <Loader2 size={16} className="animate-spin" />
-                    <span className="text-xs">正在批改</span>
-                  </div>
-                )}
-              </div>
+          {loading ? (
+            <div className="flex items-center justify-center h-full text-gray-400">
+              <Loader2 className="animate-spin text-blue-600" />
+              <span className="ml-2 text-xs">正在加载...</span>
             </div>
-          ))}
+          ) : error ? (
+            <div className="text-red-500 text-sm p-2">加载失败：{error}</div>
+          ) : (
+            visibleTasks.map((t, idx) => (
+              <div
+                key={t.id}
+                className={`flex items-center justify-between gap-3 py-3 ${idx < tasks.length - 1 ? "border-b" : ""} border-gray-200`}
+                onClick={() => navigate(`/preview/${t.id}`)}
+                role="button"
+              >
+                <div className="min-w-0">
+                  <div className="text-sm text-gray-800 truncate">{t.title}</div>
+                  <div className="text-[11px] text-gray-500">{formatDate(t.createdAt)}</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {t.status === "done" ? (
+                    <div className="flex items-center text-green-600 gap-1">
+                      <CheckCircle size={16} />
+                      <span className="text-xs">已完成</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center text-blue-600 gap-1">
+                      <Loader2 size={16} className="animate-spin" />
+                      <span className="text-xs">正在批改</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

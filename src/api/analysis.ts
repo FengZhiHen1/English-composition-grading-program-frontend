@@ -1,5 +1,6 @@
 import http from "@/utils/index";
 import { EssayData } from "@/types/analysis";
+import { ReviewTask } from "@/types/analysis";
 
 /**
  * 接口路径集合
@@ -7,6 +8,7 @@ import { EssayData } from "@/types/analysis";
 const api = {
   analysisBase: "/api/essay/essay_analysis",
   upload: "/api/essay/upload",
+  reviewTasks: "/api/essay/review_tasks", // 新增：获取用户批改任务列表
 };
 
 /**
@@ -69,4 +71,22 @@ export const submitEssay = (
 
   // 返回后端 envelope（前端在调用处根据 code/success 进行判断）
   return http.post<any>(api.upload, formData, config as any);
+};
+
+/**
+ * 获取指定用户的批改任务列表
+ * 请求：GET /api/essay/review_tasks?user_id=xxx
+ * 后端期望返回示例（envelope）：
+ * {
+ *   code: 0,
+ *   message: "ok",
+ *   data: [ { id, title, status, createdAt }, ... ]  // ReviewTask[]
+ * }
+ * 
+ * 前端会把 userId 作为 query 参数 user_id 发送给后端。
+ */
+export const getReviewTasks = (userId?: string) => {
+  const params = userId ? { user_id: userId } : undefined;
+  // 返回原始响应，调用方按实际封装解析（下方 QueuePage 有兼容处理）
+  return http.get<any>(api.reviewTasks, { params });
 };
