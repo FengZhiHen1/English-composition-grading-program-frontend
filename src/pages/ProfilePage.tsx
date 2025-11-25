@@ -45,6 +45,9 @@ const ProfilePage: React.FC = () => {
   // 使用认证信息优先渲染，未登录时使用默认值
   const { user, isAuthenticated, logout, loading } = useAuth();
 
+  // 本地状态：图片加载错误回退
+  const [imgError, setImgError] = useState(false);
+
   // 退出按钮始终显示（不再依赖登录状态判断）
 
   // 解析 grade 字符串 (示例: "高中 · 一年级") 获取初始选择
@@ -98,6 +101,11 @@ const ProfilePage: React.FC = () => {
     };
   }, [showPicker]);
 
+  // 当用户切换或 URL 变化时，重置图片错误状态
+  useEffect(() => {
+    setImgError(false);
+  }, [displayUser.avatar_url]);
+
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   // 打开弹窗
@@ -131,15 +139,16 @@ const ProfilePage: React.FC = () => {
                 }}
                 className={`w-16 h-16 rounded-full bg-gray-200 shadow-md border-2 border-white overflow-hidden flex-shrink-0 ${!isAuthenticated ? "cursor-pointer" : ""}`}
               >
-                {displayUser.avatar_url ? (
+                {displayUser.avatar_url && !imgError ? (
                   <img
                     src={displayUser.avatar_url}
                     alt="用户头像"
                     className="w-full h-full object-cover"
+                    onError={() => setImgError(true)}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white font-bold text-xl">
-                    {displayUser.username.slice(0, 1)}
+                    {(displayUser.username && displayUser.username.charAt(0)) ? displayUser.username.charAt(0).toUpperCase() : "用户".charAt(0)}
                   </div>
                 )}
               </div>
