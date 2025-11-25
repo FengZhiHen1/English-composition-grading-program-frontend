@@ -11,6 +11,9 @@ const UploadPage: React.FC = () => {
     const [fileName, setFileName] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // 修改：选择模式（下拉框）—— "direct" | "context"
+    const [mode, setMode] = useState<'direct' | 'context'>('direct'); // 默认：直接批改
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setFile(e.target.files[0]);
@@ -20,12 +23,13 @@ const UploadPage: React.FC = () => {
 
     const handleSubmit = async () => {
         if (!text && !file) {
-            alert("请输入文字或上传文件");
+            alert("请输入文字或上传图片");
             return;
         }
 
         try {
             setIsSubmitting(true);
+            // TODO: 将 mode 传给后端时再扩展 submitEssay 参数
             await submitEssay(text, file || undefined);
             navigate('/report');
         } catch (error) {
@@ -37,28 +41,38 @@ const UploadPage: React.FC = () => {
     };
 
     return (
-        // 1. 布局容器：与 Home.tsx 保持一致的背景色和 flex 结构
-        // 注意：外层的 max-w-md 已在 App.tsx 中全局配置，这里只需填充即可
         <div className="flex flex-col min-h-screen bg-gray-50">
-            
-            {/* 2. 顶部导航：启用返回按钮，设置标题 */}
             <Header showBack={true} title="提交作文" />
 
-            {/* 3. 主要内容区域 */}
-            {/* 修改：增加 pb-28 (padding-bottom) 为底部固定按钮留出空间，防止内容被遮挡 */}
             <main className="flex-1 p-4 pb-28 space-y-6">
                 
-                {/* 引导文案 (替代原来的黑色 Header Banner) */}
                 <div className="px-1">
                     <h2 className="text-lg font-bold text-gray-800">开始智能批改</h2>
                     <p className="text-sm text-gray-500 mt-1">
-                        输入文字或上传图片/文档，AI 将为您生成深度评估报告。
+                        输入文字或上传图片，AI 将为您生成深度评估报告。
                     </p>
                 </div>
 
-                {/* 输入区域容器：使用白色背景和圆角，增加层次感 */}
                 <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-4">
                     
+                    {/* 新增：选择模式（下拉框，放在输入框之前） */}
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">
+                            选择模式
+                        </label>
+                        <div>
+                            <select
+                                value={mode}
+                                onChange={(e) => setMode(e.target.value as 'direct' | 'context')}
+                                className="w-40 py-2 px-3 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none"
+                            >
+                                <option value="direct">直接批改</option>
+                                <option value="context">上下文批改</option>
+                            </select>
+                            <p className="text-[11px] text-gray-400 mt-2">上下文批改为可选模式，当前为预留选项。</p>
+                        </div>
+                    </div>
+
                     {/* 文本输入 */}
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">
@@ -79,17 +93,17 @@ const UploadPage: React.FC = () => {
                         <div className="flex-grow border-t border-gray-100"></div>
                     </div>
 
-                    {/* 文件上传 */}
+                    {/* 图片上传（仅支持图片） */}
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">
-                            上传文件
+                            上传图片
                         </label>
                         <div className="relative group">
                             <input 
                                 type="file" 
                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                 onChange={handleFileChange}
-                                accept=".txt,.doc,.docx,.pdf,image/*"
+                                accept="image/*" 
                             />
                             <div className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center gap-2 transition-all ${
                                 fileName 
@@ -108,11 +122,10 @@ const UploadPage: React.FC = () => {
                                     <>
                                         <div className="flex gap-3 text-gray-400 mb-1">
                                             <ImageIcon size={20} />
-                                            <FileType size={20} />
                                             <Upload size={20} />
                                         </div>
-                                        <p className="text-gray-600 font-medium text-sm">点击上传文件</p>
-                                        <p className="text-[10px] text-gray-400">支持 PDF, Word, 图片</p>
+                                        <p className="text-gray-600 font-medium text-sm">点击上传图片</p>
+                                        <p className="text-[10px] text-gray-400">仅支持图片格式 (jpg, png, gif 等)</p>
                                     </>
                                 )}
                             </div>
@@ -121,8 +134,6 @@ const UploadPage: React.FC = () => {
                 </div>
             </main>
 
-            {/* 4. 底部固定操作栏 */}
-            {/* 使用 fixed 定位，并配合 max-w-md 限制宽度，使其在桌面端也能保持手机样式 */}
             <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-100 p-4 z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                 <button
                     onClick={handleSubmit}

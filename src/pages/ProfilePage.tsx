@@ -12,7 +12,8 @@ import {
   Info,
   Headphones,
   X,
-  Check
+  Check,
+  Ticket
 } from 'lucide-react';
 
 import { USER } from '../constants';
@@ -149,15 +150,15 @@ const ProfilePage: React.FC = () => {
             onClick={() => console.log('收藏')} 
           />
           <ProfileMenuItem 
-            icon={HelpCircle} 
-            label="视频教程与常见问题" 
-            onClick={() => console.log('教程')} 
-          />
-          <ProfileMenuItem 
             icon={Clock} 
             label="历史记录" 
             subLabel="(批改、润色、写作)"
             onClick={() => console.log('历史')} 
+          />
+          <ProfileMenuItem 
+            icon={HelpCircle} 
+            label="视频教程与常见问题" 
+            onClick={() => console.log('教程')} 
           />
         </div>
 
@@ -165,19 +166,19 @@ const ProfilePage: React.FC = () => {
         <div className="mx-4 bg-white rounded-2xl shadow-sm overflow-hidden mb-4">
           <ProfileMenuItem 
             icon={Receipt} 
-            label="购买记录" 
-            onClick={() => console.log('购买记录')} 
+            label="充值记录" 
+            onClick={() => console.log('充值记录')} 
           />
           <ProfileMenuItem 
             icon={Gift} 
             label="活动" 
-            subLabel="(送会员)"
             onClick={() => console.log('活动')} 
           />
           <ProfileMenuItem 
-            icon={MessageCircle} 
-            label="交流群" 
-            onClick={() => console.log('交流群')} 
+            icon={Ticket} 
+            label="兑换码"
+            subLabel="(送积分)"
+            onClick={() => console.log('兑换码')} 
           />
         </div>
 
