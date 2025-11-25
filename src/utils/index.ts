@@ -1,8 +1,8 @@
 // 本模块封装基于项目 axios 实例的 HTTP 请求方法（get/post/patch/delete）。
 // 统一返回 CustomSuccessData<T> 格式，便于全局处理后端响应结构与类型推断。
 // 在应用中通过导出的 http 对象调用，例如 http.get<T>(url, params) / http.post<T>(url, data)。
-import api from './axios';
-import { AxiosRequestConfig } from 'axios';
+import api from "./axios";
+import { AxiosRequestConfig } from "axios";
 
 /**
  * 网络请求响应格式，T 是具体的接口返回类型数据
@@ -25,10 +25,10 @@ interface CustomSuccessData<T> {
 const get = <T>(
   url: string,
   params?: string | object,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<CustomSuccessData<T>> => {
   config = {
-    method: 'get', // `method` 是创建请求时使用的方法
+    method: "get", // `method` 是创建请求时使用的方法
     url, // `url` 是用于请求的服务器 URL
     ...config,
   };
@@ -48,10 +48,10 @@ const get = <T>(
 const post = <T>(
   url: string,
   data?: string | object,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<CustomSuccessData<T>> => {
   config = {
-    method: 'post',
+    method: "post",
     url,
     ...config,
   };
@@ -71,10 +71,10 @@ const post = <T>(
 const patch = <T>(
   url: string,
   data?: string | object,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<CustomSuccessData<T>> => {
   config = {
-    method: 'patch',
+    method: "patch",
     url,
     ...config,
   };
@@ -94,10 +94,10 @@ const patch = <T>(
 const remove = <T>(
   url: string,
   params?: string | object,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<CustomSuccessData<T>> => {
   config = {
-    method: 'delete',
+    method: "delete",
     url,
     ...config,
   };

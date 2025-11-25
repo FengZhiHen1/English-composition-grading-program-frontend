@@ -1,6 +1,6 @@
-import React from 'react';
-import { Home, BookOpen, User } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React from "react";
+import { Home, BookOpen, User } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const BottomNavigation: React.FC = () => {
   const navigate = useNavigate();
@@ -9,18 +9,18 @@ const BottomNavigation: React.FC = () => {
   // 定义导航项
   const navItems = [
     {
-      name: '首页',
-      path: '/',
+      name: "首页",
+      path: "/",
       icon: Home,
     },
     {
-      name: '范文集',
-      path: '/essays', // 假设的路由，你可以根据实际情况修改
+      name: "范文集",
+      path: "/essays", // 假设的路由，你可以根据实际情况修改
       icon: BookOpen,
     },
     {
-      name: '我的',
-      path: '/profile', 
+      name: "我的",
+      path: "/profile",
       icon: User,
     },
   ];
@@ -41,19 +41,25 @@ const BottomNavigation: React.FC = () => {
               onClick={() => navigate(item.path)}
               className="flex flex-col items-center justify-center w-full space-y-1 group active:scale-95 transition-transform duration-100"
             >
-              <div className={`relative p-1 rounded-full transition-colors duration-200 ${
-                isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'
-              }`}>
-                <Icon 
-                  size={24} 
+              <div
+                className={`relative p-1 rounded-full transition-colors duration-200 ${
+                  isActive
+                    ? "text-blue-600"
+                    : "text-gray-400 group-hover:text-gray-600"
+                }`}
+              >
+                <Icon
+                  size={24}
                   strokeWidth={isActive ? 2.5 : 2}
-                  fill={isActive ? "currentColor" : "none"} 
-                  className={`transition-all duration-200 ${isActive ? 'opacity-100' : 'opacity-80'}`}
+                  fill={isActive ? "currentColor" : "none"}
+                  className={`transition-all duration-200 ${isActive ? "opacity-100" : "opacity-80"}`}
                 />
               </div>
-              <span className={`text-[10px] font-medium transition-colors duration-200 ${
-                isActive ? 'text-blue-600' : 'text-gray-500'
-              }`}>
+              <span
+                className={`text-[10px] font-medium transition-colors duration-200 ${
+                  isActive ? "text-blue-600" : "text-gray-500"
+                }`}
+              >
                 {item.name}
               </span>
             </button>

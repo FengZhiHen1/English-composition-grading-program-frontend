@@ -1,5 +1,5 @@
-import React from 'react';
-import { LucideIcon } from 'lucide-react';
+import React from "react";
+import { LucideIcon } from "lucide-react";
 
 interface FeatureCardProps {
   /** 功能名称 */
@@ -11,7 +11,7 @@ interface FeatureCardProps {
   /** 点击回调 */
   onClick?: () => void;
   /** 颜色主题，默认为蓝色 */
-  variant?: 'blue' | 'green' | 'orange' | 'purple';
+  variant?: "blue" | "green" | "orange" | "purple";
   /** 额外的样式类名 */
   className?: string;
 }
@@ -21,15 +21,16 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   description,
   icon: Icon,
   onClick,
-  variant = 'blue',
-  className = '',
+  variant = "blue",
+  className = "",
 }) => {
   // 定义不同主题的颜色样式
   const themeStyles = {
-    blue: 'bg-gradient-to-b from-blue-400 to-blue-500 shadow-blue-200',
-    green: 'bg-gradient-to-b from-emerald-400 to-emerald-500 shadow-emerald-200',
-    orange: 'bg-gradient-to-b from-orange-400 to-orange-500 shadow-orange-200',
-    purple: 'bg-gradient-to-b from-purple-400 to-purple-500 shadow-purple-200',
+    blue: "bg-gradient-to-b from-blue-400 to-blue-500 shadow-blue-200",
+    green:
+      "bg-gradient-to-b from-emerald-400 to-emerald-500 shadow-emerald-200",
+    orange: "bg-gradient-to-b from-orange-400 to-orange-500 shadow-orange-200",
+    purple: "bg-gradient-to-b from-purple-400 to-purple-500 shadow-purple-200",
   };
 
   return (
@@ -61,9 +62,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
       </div>
 
       {/* 标题 */}
-      <h3 className="text-lg font-bold mb-2 tracking-wide">
-        {title}
-      </h3>
+      <h3 className="text-lg font-bold mb-2 tracking-wide">{title}</h3>
 
       {/* 描述 */}
       <p className="text-xs text-white/90 leading-relaxed font-medium">

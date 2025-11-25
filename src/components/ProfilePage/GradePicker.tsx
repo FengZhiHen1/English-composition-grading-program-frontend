@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 type Level = { name: string; years: number };
 
@@ -12,11 +12,18 @@ interface GradePickerProps {
 }
 
 const toChineseNum = (num: number) => {
-  const chinese = ['一', '二', '三', '四', '五', '六'];
+  const chinese = ["一", "二", "三", "四", "五", "六"];
   return chinese[num - 1] || num;
 };
 
-const GradePicker: React.FC<GradePickerProps> = ({ isOpen, initialLevel, initialGrade, levels, onClose, onConfirm }) => {
+const GradePicker: React.FC<GradePickerProps> = ({
+  isOpen,
+  initialLevel,
+  initialGrade,
+  levels,
+  onClose,
+  onConfirm,
+}) => {
   const [tempLevel, setTempLevel] = useState<Level>(initialLevel);
   const [tempGrade, setTempGrade] = useState<number>(initialGrade);
 
@@ -24,12 +31,12 @@ const GradePicker: React.FC<GradePickerProps> = ({ isOpen, initialLevel, initial
     if (isOpen) {
       setTempLevel(initialLevel);
       setTempGrade(initialGrade);
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     };
   }, [isOpen, initialLevel, initialGrade]);
 
@@ -44,11 +51,16 @@ const GradePicker: React.FC<GradePickerProps> = ({ isOpen, initialLevel, initial
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/40 z-50 transition-opacity" onClick={onClose} />
+      <div
+        className="fixed inset-0 bg-black/40 z-50 transition-opacity"
+        onClick={onClose}
+      />
 
       <div className="fixed bottom-0 left-0 right-0 bg-white z-[60] rounded-t-2xl shadow-2xl transform transition-transform duration-300 max-w-md mx-auto overscroll-contain">
         <div className="flex justify-between items-center p-4 border-b border-gray-100">
-          <button onClick={onClose} className="text-gray-500 text-sm px-2 py-1">取消</button>
+          <button onClick={onClose} className="text-gray-500 text-sm px-2 py-1">
+            取消
+          </button>
           <span className="font-bold text-gray-800">选择年级</span>
           <button
             onClick={() => onConfirm(tempLevel, tempGrade)}
@@ -66,7 +78,9 @@ const GradePicker: React.FC<GradePickerProps> = ({ isOpen, initialLevel, initial
                   key={level.name}
                   onClick={() => handleLevelChange(level)}
                   className={`py-3 text-center text-sm cursor-pointer transition-colors ${
-                    tempLevel.name === level.name ? 'text-blue-600 font-bold bg-blue-50' : 'text-gray-600 hover:bg-gray-50'
+                    tempLevel.name === level.name
+                      ? "text-blue-600 font-bold bg-blue-50"
+                      : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
                   {level.name}
@@ -85,7 +99,9 @@ const GradePicker: React.FC<GradePickerProps> = ({ isOpen, initialLevel, initial
                     key={gradeNum}
                     onClick={() => setTempGrade(gradeNum)}
                     className={`py-3 text-center text-sm cursor-pointer transition-colors ${
-                      tempGrade === gradeNum ? 'text-blue-600 font-bold bg-blue-50' : 'text-gray-600 hover:bg-gray-50'
+                      tempGrade === gradeNum
+                        ? "text-blue-600 font-bold bg-blue-50"
+                        : "text-gray-600 hover:bg-gray-50"
                     }`}
                   >
                     {toChineseNum(gradeNum)}年级

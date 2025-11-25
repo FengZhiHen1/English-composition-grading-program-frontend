@@ -1,6 +1,6 @@
-import React from 'react';
-import { MoreHorizontal, Circle, ChevronLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { MoreHorizontal, Circle, ChevronLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   /** 页面标题，默认为"英语作文批改" */
@@ -9,7 +9,10 @@ interface HeaderProps {
   showBack?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ title = "英语作文批改", showBack = false }) => {
+const Header: React.FC<HeaderProps> = ({
+  title = "英语作文批改",
+  showBack = false,
+}) => {
   const navigate = useNavigate();
 
   return (
@@ -17,8 +20,8 @@ const Header: React.FC<HeaderProps> = ({ title = "英语作文批改", showBack 
       {/* 左侧区域：返回按钮或占位 */}
       <div className="w-20 flex items-center">
         {showBack ? (
-          <button 
-            onClick={() => navigate(-1)} 
+          <button
+            onClick={() => navigate(-1)}
             className="p-1 -ml-2 text-gray-800 hover:bg-gray-100 rounded-full transition-colors active:scale-90"
             aria-label="返回上一页"
           >
