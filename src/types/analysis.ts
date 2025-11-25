@@ -1,20 +1,6 @@
 /*
-用户数据
-*/
-export interface User {
-  uid: number;
-  username: string;
-  avatar_url: string; // 用户头像
-  telephone: string; // 绑定的手机号
-  wechat_id: string; // 绑定的微信号
-  points: number;    // 积分数
-  grade: string;     // 年级 (例如: "大学 · 二年级")
-}
-
-/*
 以下数据用于生成分析报告
 */
-
 export interface ScoreBreakdown {
   relevance: string;
   grammar_vocab: string;

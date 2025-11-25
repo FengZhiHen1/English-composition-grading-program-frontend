@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
-import { OverallEvaluation } from '../../types';
+import { OverallEvaluation } from '../../types/analysis';
 
 interface Props {
   evaluation: OverallEvaluation;

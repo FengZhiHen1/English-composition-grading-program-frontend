@@ -1,6 +1,7 @@
-import { EssayData, User } from './types';
+import { EssayData } from './types/analysis';
+import { userInfo } from './types/user'
 
-export const USER: User = {
+export const USER: userInfo = {
   "uid": 1,
   "username": "风之痕",
   "avatar_url": "",

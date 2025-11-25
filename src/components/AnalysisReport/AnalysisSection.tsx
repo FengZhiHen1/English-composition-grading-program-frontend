@@ -1,5 +1,5 @@
 import React from 'react';
-import { EssayData, HighlightPoint, ImprovementPoint } from '../../types';
+import { EssayData, HighlightPoint, ImprovementPoint } from '../../types/analysis';
 import { ThumbsUp, ArrowUpCircle, Bookmark, Star } from 'lucide-react';
 
 interface Props {

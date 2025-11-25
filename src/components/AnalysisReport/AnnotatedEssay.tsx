@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { EssayData, DetailedError, Optimization } from '../../types';
+import { EssayData, DetailedError, Optimization } from '../../types/analysis';
 import { Check, Lightbulb, Sparkles } from 'lucide-react';
 
 interface Props {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // 导入 hook 用于返回
 
 import { MOCK_DATA } from '../constants';
-import { EssayData } from '../types';
+import { EssayData } from '../types/analysis';
 import { getEssayAnalysis } from '../api/analysis';
 
 import ScoreOverview from '../components/AnalysisReport/ScoreOverview';
