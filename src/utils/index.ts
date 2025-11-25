@@ -1,7 +1,7 @@
 // 本模块封装基于项目 axios 实例的 HTTP 请求方法（get/post/patch/delete）。
 // 统一返回 CustomSuccessData<T> 格式，便于全局处理后端响应结构与类型推断。
 // 在应用中通过导出的 http 对象调用，例如 http.get<T>(url, params) / http.post<T>(url, data)。
-import api from "./axios";
+import api from "./request";
 import { AxiosRequestConfig } from "axios";
 
 /**
@@ -107,12 +107,22 @@ const remove = <T>(
   return api(config);
 };
 
+// 新增：设置/清除 Authorization token（Bearer）
+export const setAuthToken = (token: string | null) => {
+  if (token) {
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  } else {
+    delete api.defaults.headers.common["Authorization"];
+  }
+};
+
 // 包裹请求方法的容器,使用 http 统一调用
 const http = {
   get,
   post,
   patch,
   remove,
+  setAuthToken,
 };
 
 export default http;

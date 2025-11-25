@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import UploadPage from "./pages/UploadPage";
 import AnalysisReport from "./pages/AnalysisReport";
 import ProfilePage from "./pages/ProfilePage";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 function App() {
   return (
@@ -18,6 +19,11 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/upload" element={<UploadPage />} />
+          {/* <Route path="/report" element={
+            <ProtectedRoute>
+              <AnalysisReport />
+            </ProtectedRoute>
+          } /> */}
           <Route path="/report" element={<AnalysisReport />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>

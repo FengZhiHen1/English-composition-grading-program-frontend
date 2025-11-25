@@ -3,6 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 // 引入应用的根组件 App
 import App from "./App";
+import { AuthProvider } from "./context/AuthContext";
 
 // 获取 DOM 挂载点
 const rootElement = document.getElementById("root");
@@ -15,7 +16,8 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    {" "}
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </React.StrictMode>,
 );

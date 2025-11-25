@@ -5,8 +5,8 @@ import { EssayData } from "@/types/analysis";
  * 接口路径集合
  */
 const api = {
-  analysisBase: "/api/essay_analysis",
-  upload: "/api/upload",
+  analysisBase: "/api/essay/essay_analysis",
+  upload: "/api/essay/upload",
 };
 
 /**
