@@ -3,8 +3,9 @@ import { Camera, PenTool } from "lucide-react";
 import { useNavigate } from "react-router-dom"; // 1. 引入 useNavigate
 
 import BottomNavigation from "../components/BottomNavigation";
-import FeatureCard from "../components/FeatureCard";
+import FeatureCard from "../components/Home/FeatureCard";
 import Header from "../components/Header";
+import QueueCard from "@/components/Home/QueueCard";
 
 const Home: React.FC = () => {
   const navigate = useNavigate(); // 2. 初始化 navigate
@@ -30,6 +31,10 @@ const Home: React.FC = () => {
             variant="green"
             onClick={() => console.log("点击了润色")}
           />
+        </div>
+
+        <div className="mt-6">
+          <QueueCard />
         </div>
       </main>
 
