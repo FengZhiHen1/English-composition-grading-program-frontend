@@ -4,6 +4,7 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import { submitEssay } from "../api/analysis";
 import Header from "../components/Header"; // 确保路径正确
 import UploadImages from "../components/UploadPage/UploadImages";
+import UploadConfirmModal from "../components/UploadPage/UploadConfirmModal";
 
 const UploadPage: React.FC = () => {
   const navigate = useNavigate();
@@ -18,19 +19,29 @@ const UploadPage: React.FC = () => {
       return;
     }
 
-    try {
+    // 仅弹出确认框，真正的上传在确认后触发
+    setShowConfirm(true);
+  };
+
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const handleConfirm = () => {
+    // 等待上传完成后再跳转
+    const doSubmit = async () => {
+      setShowConfirm(false);
       setIsSubmitting(true);
-      await submitEssay(
-        text || undefined,
-        files.length > 0 ? files : undefined,
-      );
-      navigate("/queue");
-    } catch (error) {
-      console.error("提交失败:", error);
-      alert("提交失败，请检查网络或稍后重试");
-    } finally {
-      setIsSubmitting(false);
-    }
+      try {
+        await submitEssay(text || undefined, files.length > 0 ? files : undefined);
+        navigate("/queue");
+      } catch (err) {
+        console.error("提交失败:", err);
+        alert("提交失败，请检查网络或稍后重试");
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
+    doSubmit();
   };
 
   return (
@@ -121,6 +132,12 @@ const UploadPage: React.FC = () => {
           )}
         </button>
       </div>
+      <UploadConfirmModal
+        visible={showConfirm}
+        loading={isSubmitting}
+        onConfirm={handleConfirm}
+        onCancel={() => setShowConfirm(false)}
+      />
     </div>
   );
 };
