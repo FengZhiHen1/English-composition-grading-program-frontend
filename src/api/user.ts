@@ -28,8 +28,10 @@ export function postRegisterAPI(data: loginData) {
 
 /**
  * @description: 获取用户信息
+ * @param {number | string} [id] 可选的用户 id，若提供则请求 `/api/user/get_userinfo/{id}`，未提供则请求当前登录用户信息
  * @return 用户信息
  */
-export function getUserInfoAPI() {
-  return http.get<userInfo>(api.userInfo);
+export function getUserInfoAPI(id?: number | string) {
+  const url = id ? `${api.userInfo}/${id}` : api.userInfo;
+  return http.get<userInfo>(url);
 }

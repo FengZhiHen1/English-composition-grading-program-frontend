@@ -16,7 +16,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   login: (payload: loginData) => Promise<void>;
   logout: () => void;
-  refreshUser: () => Promise<void>;
+  refreshUser: (id?: number | string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -33,7 +33,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const token = localStorage.getItem(TOKEN_KEY);
     if (token) {
       setAuthToken(token);
-      refreshUser().finally(() => setLoading(false));
+      // 尝试从 token 中解析出 uid，优先使用 uid 去获取用户信息，若解析失败则不传 id
+      const tryUid = (() => {
+        try {
+          const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+          // 常见字段名：uid / sub / id / user_id
+          return (payload && (payload.uid ?? payload.sub ?? payload.id ?? payload.user_id)) || undefined;
+        } catch {
+          return undefined;
+        }
+      })();
+
+      refreshUser(tryUid).finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
@@ -45,9 +56,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return typeof v === "object" && v !== null && Object.prototype.hasOwnProperty.call(v, "success");
   };
 
-  const refreshUser = async () => {
+  const refreshUser = async (id?: number | string) => {
     try {
-      const res = await getUserInfoAPI();
+      const res = await getUserInfoAPI(id);
       if (isEnvelope(res)) {
         if (res.success) {
           setUser(res.data ?? null);
@@ -88,7 +99,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           localStorage.setItem(TOKEN_KEY, token);
         } catch {}
         setAuthToken(token);
-        await refreshUser();
+        // 尝试从登录返回的数据中获取 uid，优先使用返回数据的 uid，再退回到解析 token
+        const tryUidFromData = (maybe as any).uid ?? (maybe as any).user?.uid ?? (maybe as any).user_id ?? undefined;
+        let uidToUse = tryUidFromData;
+        if (!uidToUse) {
+          try {
+            const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+            uidToUse = payload && (payload.uid ?? payload.sub ?? payload.id ?? payload.user_id);
+          } catch {}
+        }
+
+        await refreshUser(uidToUse);
         return;
       }
 
