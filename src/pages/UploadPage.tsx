@@ -1,36 +1,26 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, FileText, Image as ImageIcon, FileType, ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { submitEssay } from '../api/analysis';
 import Header from '../components/Header'; // 确保路径正确
+import UploadImages from '../components/UploadPage/UploadImages';
 
 const UploadPage: React.FC = () => {
     const navigate = useNavigate();
     const [text, setText] = useState('');
-    const [file, setFile] = useState<File | null>(null);
-    const [fileName, setFileName] = useState<string | null>(null);
+    const [files, setFiles] = useState<File[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // 修改：选择模式（下拉框）—— "direct" | "context"
     const [mode, setMode] = useState<'direct' | 'context'>('direct'); // 默认：直接批改
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setFile(e.target.files[0]);
-            setFileName(e.target.files[0].name);
-        }
-    };
-
     const handleSubmit = async () => {
-        if (!text && !file) {
+        if (!text && files.length === 0) {
             alert("请输入文字或上传图片");
             return;
         }
 
         try {
             setIsSubmitting(true);
-            // TODO: 将 mode 传给后端时再扩展 submitEssay 参数
-            await submitEssay(text, file || undefined);
+            await submitEssay(text || undefined, files.length > 0 ? files : undefined);
             navigate('/report');
         } catch (error) {
             console.error("提交失败:", error);
@@ -93,44 +83,8 @@ const UploadPage: React.FC = () => {
                         <div className="flex-grow border-t border-gray-100"></div>
                     </div>
 
-                    {/* 图片上传（仅支持图片） */}
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">
-                            上传图片
-                        </label>
-                        <div className="relative group">
-                            <input 
-                                type="file" 
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                onChange={handleFileChange}
-                                accept="image/*" 
-                            />
-                            <div className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center gap-2 transition-all ${
-                                fileName 
-                                    ? 'border-blue-400 bg-blue-50' 
-                                    : 'border-gray-200 hover:border-blue-400 hover:bg-gray-50'
-                            }`}>
-                                {fileName ? (
-                                    <>
-                                        <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
-                                            <FileText size={20} />
-                                        </div>
-                                        <p className="text-gray-700 font-medium text-sm truncate max-w-[200px]">{fileName}</p>
-                                        <p className="text-[10px] text-blue-500">点击更换</p>
-                                    </>
-                                ) : (
-                                    <>
-                                        <div className="flex gap-3 text-gray-400 mb-1">
-                                            <ImageIcon size={20} />
-                                            <Upload size={20} />
-                                        </div>
-                                        <p className="text-gray-600 font-medium text-sm">点击上传图片</p>
-                                        <p className="text-[10px] text-gray-400">仅支持图片格式 (jpg, png, gif 等)</p>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    </div>
+                    {/* 图片上传（支持多张图片） */}
+                    <UploadImages files={files} setFiles={setFiles} />
                 </div>
             </main>
 

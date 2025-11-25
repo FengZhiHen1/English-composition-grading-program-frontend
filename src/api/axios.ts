@@ -12,11 +12,12 @@ const api = axios.create({
 // 请求拦截器
 api.interceptors.request.use(
     (config) => {
-        // 在发送请求之前做些什么，例如添加 Token
-        // const token = localStorage.getItem('token');
-        // if (token) {
-        //   config.headers.Authorization = `Bearer ${token}`;
-        // }
+        // 每次发送请求之前判断pinia中是否存在token，如果存在，则统一在http请求的header都加上token，这样后台根据token判断你的登录情况
+        const token = localStorage.getItem('token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+
         return config;
     },
     (error) => {
